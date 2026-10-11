@@ -21,36 +21,23 @@ jobs:
     timeout-minutes: 240
     steps:
       - name: Checkout OpenGenesisLINK source
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           persist-credentials: false
 
       - name: Checkout pinned Firestorm build variables
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           repository: FirestormViewer/fs-build-variables
           ref: c17312d38377c003977cf5b6dcc83c6042eba194
           path: fs-build-variables
           persist-credentials: false
 
-      - name: Verify runner prerequisites
+      - name: Verify dedicated Linux build environment
         shell: bash
         run: |
           set -euo pipefail
-          source /etc/os-release
-          [[ "$ID" == "ubuntu" && "$VERSION_ID" == "22.04" ]] || {
-            echo "Require Ubuntu 22.04 LTS" >&2; exit 1;
-          }
-          [[ "$(uname -m)" == "x86_64" ]] || {
-            echo "Require Linux x86_64" >&2; exit 1;
-          }
-          for tool in gcc-11 g++-11 cmake python3 git; do
-            command -v "$tool" >/dev/null || { echo "Missing $tool" >&2; exit 1; }
-          done
-          free_mb=$(df -Pm . | awk 'NR==2 {print $4}')
-          (( free_mb >= 65536 )) || { echo "Require at least 64 GiB free disk" >&2; exit 1; }
-          ram_kb=$(awk '/^MemTotal:/ {print $2}' /proc/meminfo)
-          (( ram_kb >= 15000000 )) || { echo "Require at least 16 GB RAM" >&2; exit 1; }
+          bash scripts/preflight_linux.sh
           python3 scripts/check_source_import.py
 
       - name: Install Python Autobuild tooling
@@ -89,7 +76,7 @@ jobs:
 
       - name: Upload diagnostics only
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: ogl-linux-releaseos-logs-${{ github.run_id }}
           path: ogl-ci-output/
