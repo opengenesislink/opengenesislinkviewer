@@ -23,5 +23,6 @@ This document is a checklist, not legal advice.
 - [ ] Check compatibility with applicable third-party viewer policies.
 - [ ] Run a legal review for release and distribution locales.
 
-Do not claim licensing as complete solely because the upstream README says
-LGPL. The license file is brought with the upstream source in M1.
+The root `LICENSE` now contains the upstream LGPL-2.1 text verbatim.
+This alone does NOT complete the per-file, third-party and distribution review
+required after source import.
