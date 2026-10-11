@@ -58,9 +58,19 @@ def main() -> int:
             need(set(feature) == {"version", "available"}, f"invalid feature {name}")
             need(feature.get("version") == "0.1", f"version error {name}")
             need(type(feature.get("available")) is bool, f"availability not boolean {name}")
-    # Resolve relative Markdown links in docs. Ignore URLs, mailto, anchors and images.
+    # Validate OGL-owned documentation only. After source import, upstream's
+    # own docs and historical links are outside this foundation check's scope.
+    # A green foundation check is NOT a Firestorm source or build validation.
     link_re = re.compile(r"(?<!!)\[[^\]]+\]\(([^)]+)\)")
-    for source in list(ROOT.glob("*.md")) + list((ROOT / "docs").rglob("*.md")):
+    project_markdown = [
+        ROOT / rel for rel in required if rel.endswith(".md")
+    ] + [
+        ROOT / "docs/BACKLOG.md",
+        ROOT / "docs/FEATURE_FLAGS.md",
+    ] + list((ROOT / "docs/decisions").glob("*.md"))
+    for source in project_markdown:
+        if not source.is_file():
+            continue
         for target in link_re.findall(source.read_text(encoding="utf-8")):
             link = target.split("#", 1)[0]
             if not link or link.startswith(("https://", "http://", "mailto:")):
