@@ -109,10 +109,11 @@ export AUTOBUILD_VARIABLES_FILE="$(realpath ../fs-build-variables/variables)"
 bash scripts/preflight_linux.sh
 python3 scripts/check_source_import.py
 bash scripts/build_linux.sh
+bash scripts/check_linux_binary.sh
 ```
 
 The local script requires the repository already be checked out at the import
-branch. Successful compilation is **not** equivalent to runtime compatibility:
+branch. The optional `check_linux_binary.sh` verifies OpenSim CMake flags, a Linux x86_64 ELF executable, and missing dynamic libraries; it does **not** perform an OpenSimulator grid login. Successful compilation is **not** equivalent to runtime compatibility:
 a launch and login test against an OpenSimulator-compatible test grid is still
 required. Windows native CI remains outstanding under #7.
 
