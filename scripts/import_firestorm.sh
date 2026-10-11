@@ -30,9 +30,43 @@ ACTUAL="$(git rev-parse "refs/remotes/upstream/$BASELINE")"
 
 git switch -c "$BRANCH" "upstream/$BASELINE"
 # Different repository ancestry: merge BOTH histories without discarding upstream.
-# In rare file collisions prefer upstream C++ source and inspect the merge diff.
-git merge --allow-unrelated-histories --no-ff -X ours \
-  -m "chore: merge OGL foundation into pinned Firestorm $BASELINE" origin/main
+# The foundation and upstream can both add .gitignore and LICENSE, and -X ours
+# does not always resolve add/add conflicts. Only these KNOWN files are handled
+# automatically; unexpected conflicts remain for a human to review.
+if ! git merge --allow-unrelated-histories --no-ff -X ours \
+  -m "chore: merge OGL foundation into pinned Firestorm $BASELINE" origin/main; then
+  conflicts="$(git diff --name-only --diff-filter=U)"
+  [[ -n "$conflicts" ]] || die "Merge failed without file conflicts; inspect git status."
+
+  had_gitignore=false
+  while IFS= read -r path; do
+    case "$path" in
+      LICENSE)
+        # The upstream license is the authoritative baseline.
+        git checkout --ours -- LICENSE
+        git add -- LICENSE
+        ;;
+      .gitignore)
+        # Keep upstream build ignores and then append OGL foundation ignores.
+        git checkout --ours -- .gitignore
+        had_gitignore=true
+        ;;
+      *)
+        die "Unexpected conflict: $path. Resolve manually and finish the merge."
+        ;;
+    esac
+  done <<< "$conflicts"
+
+  if [[ "$had_gitignore" == "true" ]]; then
+    printf '\n# OGL foundation ignores\n' >> .gitignore
+    git show origin/main:.gitignore >> .gitignore
+    git add -- .gitignore
+  fi
+  [[ -z "$(git diff --name-only --diff-filter=U)" ]] ||
+    die "Unresolved merge conflicts remain."
+
+  git commit -m "chore: merge OGL foundation into pinned Firestorm $BASELINE"
+fi
 
 # Preserve project-facing entry points; upstream docs remain available separately.
 mkdir -p docs
@@ -40,8 +74,8 @@ git show "upstream/$BASELINE:README.md" > docs/UPSTREAM-README.md
 if git cat-file -e "upstream/$BASELINE:CONTRIBUTING.md" 2>/dev/null; then
   git show "upstream/$BASELINE:CONTRIBUTING.md" > docs/UPSTREAM-CONTRIBUTING.md
 fi
-git checkout origin/main -- README.md ROADMAP.md CONTRIBUTING.md
-git add README.md ROADMAP.md CONTRIBUTING.md docs/UPSTREAM-README.md
+git checkout origin/main -- README.md ROADMAP.md CONTRIBUTING.md .github/pull_request_template.md
+git add README.md ROADMAP.md CONTRIBUTING.md .github/pull_request_template.md docs/UPSTREAM-README.md
 if [[ -f docs/UPSTREAM-CONTRIBUTING.md ]]; then
   git add docs/UPSTREAM-CONTRIBUTING.md
 fi
