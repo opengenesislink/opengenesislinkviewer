@@ -1,0 +1,97 @@
+# Manual native compilation only; no release, signing, or deployment.
+# Requires a trusted, isolated Ubuntu 22.04 x86_64 runner with label
+# 'ogl-native-linux', >=16 GB RAM, >=64 GB free disk, GCC/G++ 11.
+# workflow_dispatch becomes available in GitHub UI after this workflow
+# exists on the repository's default branch.
+name: OpenGenesisLINK Linux ReleaseOS (manual)
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ogl-native-linux-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  releaseos:
+    name: Compile Linux x64 OpenSimulator viewer
+    runs-on: [self-hosted, linux, x64, ogl-native-linux]
+    timeout-minutes: 240
+    steps:
+      - name: Checkout OpenGenesisLINK source
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Checkout pinned Firestorm build variables
+        uses: actions/checkout@v4
+        with:
+          repository: FirestormViewer/fs-build-variables
+          ref: c17312d38377c003977cf5b6dcc83c6042eba194
+          path: fs-build-variables
+          persist-credentials: false
+
+      - name: Verify runner prerequisites
+        shell: bash
+        run: |
+          set -euo pipefail
+          source /etc/os-release
+          [[ "$ID" == "ubuntu" && "$VERSION_ID" == "22.04" ]] || {
+            echo "Require Ubuntu 22.04 LTS" >&2; exit 1;
+          }
+          [[ "$(uname -m)" == "x86_64" ]] || {
+            echo "Require Linux x86_64" >&2; exit 1;
+          }
+          for tool in gcc-11 g++-11 cmake python3 git; do
+            command -v "$tool" >/dev/null || { echo "Missing $tool" >&2; exit 1; }
+          done
+          free_mb=$(df -Pm . | awk 'NR==2 {print $4}')
+          (( free_mb >= 65536 )) || { echo "Require at least 64 GiB free disk" >&2; exit 1; }
+          ram_kb=$(awk '/^MemTotal:/ {print $2}' /proc/meminfo)
+          (( ram_kb >= 15000000 )) || { echo "Require at least 16 GB RAM" >&2; exit 1; }
+          python3 scripts/check_source_import.py
+
+      - name: Install Python Autobuild tooling
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m venv "$RUNNER_TEMP/ogl-native-venv"
+          "$RUNNER_TEMP/ogl-native-venv/bin/python" -m pip install -r requirements.txt
+
+      - name: Record build metadata
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p ogl-ci-output
+          {
+            echo "repository=$GITHUB_REPOSITORY"
+            echo "source_sha=$GITHUB_SHA"
+            echo "build_variables_sha=c17312d38377c003977cf5b6dcc83c6042eba194"
+            echo "build_variant=ReleaseOS"
+            echo "runner=$(uname -srm)"
+            gcc-11 --version | head -n 1
+            cmake --version | head -n 1
+            "$RUNNER_TEMP/ogl-native-venv/bin/autobuild" --version
+          } > ogl-ci-output/build-metadata.txt
+
+      - name: Configure and compile viewer (no publishing)
+        shell: bash
+        env:
+          CC: gcc-11
+          CXX: g++-11
+          AUTOBUILD_VARIABLES_FILE: ${{ github.workspace }}/fs-build-variables/variables
+        run: |
+          set -euo pipefail
+          export PATH="$RUNNER_TEMP/ogl-native-venv/bin:$PATH"
+          bash scripts/build_linux.sh 2>&1 | tee ogl-ci-output/build.log
+
+      - name: Upload diagnostics only
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ogl-linux-releaseos-logs-${{ github.run_id }}
+          path: ogl-ci-output/
+          if-no-files-found: warn
+          retention-days: 7
