@@ -8,7 +8,7 @@ lacks source code until PR #26 is accepted. Commands are test candidates.
 
 The upstream Linux build instructions target Ubuntu 22.04 x86_64, GCC 11,
 16 GB+ RAM, 64 GB+ free disk space and a current `autobuild` tool.
-Verify requirements against the *pinned* release branch and runner image.
+Verify requirements against the *pinned* release branch and runner image.\nRun `bash scripts/preflight_linux.sh` first on a dedicated Ubuntu 22.04 build machine to check toolchain, APT packages, architecture, glibc, memory and disk space.
 See https://github.com/FirestormViewer/phoenix-firestorm/blob/Firestorm_7.2.4/doc/building_linux.md
 
 Install prerequisites per upstream's Linux guide. Then:
@@ -16,7 +16,8 @@ Install prerequisites per upstream's Linux guide. Then:
 ```bash
 git clone https://github.com/opengenesislink/opengenesislinkviewer.git
 cd opengenesislinkviewer
-# Requires M1: Firestorm source imported into this checkout first.
+git switch feature/firestorm-source-import
+# Do not use main until PR #26 has been reviewed and merged.
 git clone https://github.com/FirestormViewer/fs-build-variables.git ../fs-build-variables
 python3 -m venv .venv
 source .venv/bin/activate
@@ -63,8 +64,37 @@ Native build runner requirements:
   locally on a prepared workstation to test this branch before merging.
   Do not merge solely to expose the manual workflow.
 
-For a local smoke build, check out `feature/firestorm-source-import`,
-install dependencies listed above, then from the repository root:
+For a local smoke build, check out `feature/firestorm-source-import` on an
+**isolated build machine or VM**, not a workstation containing credentials.
+GitHub Actions self-hosted runners execute code from the checked-out repository;
+this is particularly hazardous for a **public** repository. Use a dedicated
+non-root operating-system account without production secrets, isolate it from
+sensitive networks, restrict who can dispatch native workflows, and do not run
+unreviewed contributions on the native runner. The runner opens an outbound
+HTTPS connection to GitHub; an inbound public SSH port is not needed for CI.
+
+Initial Ubuntu 22.04 APT dependencies (from pinned upstream guide, with
+`g++-11` and `python3-venv` explicitly included for this workflow):
+
+```bash
+sudo apt update
+sudo apt install -y libgl1-mesa-dev libglu1-mesa-dev libpulse-dev \\
+  build-essential python3-pip python3-venv git libssl-dev \\
+  libxinerama-dev libxrandr-dev libfontconfig-dev libfreetype6-dev \\
+  gcc-11 g++-11 cmake
+```
+
+For GitHub-managed builds, register a **repository-scoped** self-hosted runner
+using the instructions displayed in GitHub > Repository Settings > Actions >
+Runners > New self-hosted runner. Configure the custom runner label
+`ogl-native-linux` on a dedicated Linux x64 runner. Never share the temporary
+registration token in chat, source code or logs. This workflow can only be
+manually dispatched via GitHub Actions after the workflow file exists on the
+**default branch**; PR #26 remains draft and must not be merged merely to
+trigger a workflow. In the meantime execute the local commands below on a
+trusted checked-out copy of the import branch.
+
+To perform the native build from the repository root:
 
 ```bash
 git clone https://github.com/FirestormViewer/fs-build-variables.git ../fs-build-variables
@@ -73,6 +103,7 @@ python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install -r requirements.txt
 export AUTOBUILD_VARIABLES_FILE="$(realpath ../fs-build-variables/variables)"
+bash scripts/preflight_linux.sh
 python3 scripts/check_source_import.py
 bash scripts/build_linux.sh
 ```
