@@ -72,10 +72,11 @@ foundation history and review the import as a separate change.
 
 ## License and attribution
 
-The upstream viewer reports the **GNU LGPL 2.1** license. Existing copyright
-notices, attributions, third-party licensing and redistribution conditions must
-be maintained after import. The project's own new files will need their license
-status recorded explicitly. Do not strip Firestorm/Second Life notices from
+The root [LICENSE](LICENSE) contains the verbatim **GNU LGPL 2.1** license
+from the pinned upstream release. Existing copyright notices, attributions,
+third-party licensing and redistribution conditions must be maintained after
+import. The license status of independently authored planning files and new
+components must be reviewed by maintainers. Do not strip Firestorm/Second Life notices from
 derived source; branded assets are a separate trademark concern.
 
 This project is independent of, and is not endorsed by, Firestorm or Linden Lab.
