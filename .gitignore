@@ -130,3 +130,15 @@ firestorm.code-workspace
 .github/release.yaml
 
 checks.json
+
+# OGL foundation ignores
+# Foundation-specific ignores; upstream Firestorm .gitignore wins on import.
+__pycache__/
+*.pyc
+.venv/
+.env
+.env.*
+!.env.example
+*.log
+.tmp/
+.DS_Store

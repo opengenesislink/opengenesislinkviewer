@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://opengenesislink.de/schemas/ogl-features-0.1.schema.json",
+  "title": "OGL feature manifest 0.1 (proposal; not deployed)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "protocol",
+    "protocolVersion",
+    "gridId",
+    "regionId",
+    "features"
+  ],
+  "properties": {
+    "protocol": {
+      "const": "ogl.capabilities"
+    },
+    "protocolVersion": {
+      "const": "0.1"
+    },
+    "gridId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "regionId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "features": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "search": {
+          "$ref": "#/$defs/feature"
+        },
+        "wallet": {
+          "$ref": "#/$defs/feature"
+        },
+        "hydro": {
+          "$ref": "#/$defs/feature"
+        },
+        "terrainStream": {
+          "$ref": "#/$defs/feature"
+        },
+        "federation": {
+          "$ref": "#/$defs/feature"
+        }
+      }
+    }
+  },
+  "$defs": {
+    "feature": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "version",
+        "available"
+      ],
+      "properties": {
+        "version": {
+          "const": "0.1"
+        },
+        "available": {
+          "type": "boolean"
+        }
+      }
+    }
+  }
+}

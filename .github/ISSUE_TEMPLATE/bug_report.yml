@@ -1,0 +1,29 @@
+name: Bug report
+description: Report a confirmed issue in the OGL Viewer project
+title: "[BUG] "
+labels: []
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: Actual and expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      description: Include OpenSim/OGL grid version and exact conditions
+    validations:
+      required: true
+  - type: input
+    id: build
+    attributes:
+      label: Viewer build or commit SHA
+      placeholder: "main / commit SHA / version"
+  - type: textarea
+    id: logs
+    attributes:
+      label: Diagnostic information
+      description: Remove tokens, secrets, UUID credentials and private data

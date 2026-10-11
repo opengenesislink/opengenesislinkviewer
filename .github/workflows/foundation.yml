@@ -1,0 +1,24 @@
+name: Foundation validation (NOT a viewer build)
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  foundation:
+    name: Documents, contracts and script syntax
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate foundation
+        run: python3 scripts/check_scaffold.py
+      - name: Check shell syntax
+        run: |
+          bash -n scripts/import_firestorm.sh
+          bash -n scripts/build_linux.sh

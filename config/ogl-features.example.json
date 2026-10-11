@@ -1,0 +1,28 @@
+{
+  "protocol": "ogl.capabilities",
+  "protocolVersion": "0.1",
+  "gridId": "example-grid-id",
+  "regionId": "00000000-0000-0000-0000-000000000001",
+  "features": {
+    "search": {
+      "version": "0.1",
+      "available": true
+    },
+    "wallet": {
+      "version": "0.1",
+      "available": false
+    },
+    "hydro": {
+      "version": "0.1",
+      "available": false
+    },
+    "terrainStream": {
+      "version": "0.1",
+      "available": false
+    },
+    "federation": {
+      "version": "0.1",
+      "available": false
+    }
+  }
+}
