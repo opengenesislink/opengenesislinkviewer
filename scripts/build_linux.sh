@@ -28,6 +28,7 @@ CXX_BIN=$(command -v "${CXX:-g++-11}") || { echo "g++-11 not found" >&2; exit 1;
 autobuild configure -A 64 -c ReleaseOS -- \
   -DOPENSIM:BOOL=ON \
   -DPACKAGE:BOOL=OFF \
+  -DVIEWER_CHANNEL:STRING=OpenGenesisLINK \
   -DCMAKE_C_COMPILER:FILEPATH="$CC_BIN" \
   -DCMAKE_CXX_COMPILER:FILEPATH="$CXX_BIN"
 
