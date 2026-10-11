@@ -12,7 +12,7 @@ Last foundation update: 2026-10-12.
 | Actual OGL executable | **Not built** |
 | OGL proprietary API endpoints | **Not implemented** |
 | Renderer/HydroEngine integration | **Not implemented** |
-| CI | Foundation/documentation checks only; upstream CI disabled pending OGL-specific workflows, native build unverified |
+| CI | Upstream workflows disabled; Foundation + static ReleaseOS source guard pass; opt-in OGL Linux native workflow authored but **not run**, Windows native CI pending |
 | Production release | None |
 
 Update this file only when verification evidence (commit, test log, artifact) exists. Do not mark milestones complete on the basis of a plan alone.
