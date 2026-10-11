@@ -112,6 +112,18 @@ bash scripts/build_linux.sh
 bash scripts/check_linux_binary.sh
 ```
 
+On a prepared checkout with a **previously successful CMake configure**, resume
+an interrupted build without downloading or reconfiguring dependencies:
+```bash
+export PATH="/home/slmm/Projekte/opengenesislinkviewer/.venv/bin:$PATH" # example; use your own venv
+export AUTOBUILD_VARIABLES_FILE="$(realpath ../fs-build-variables/variables)"
+OGL_REUSE_CONFIG=1 OGL_BUILD_JOBS=3 bash scripts/build_linux.sh
+```
+The script checks `OPENSIM=ON` and `PACKAGE=OFF` in the CMake cache before
+continuing. The explicit Ninja job limit is essential on memory-constrained
+developer machines: `CMAKE_BUILD_PARALLEL_LEVEL` alone does **not** limit the
+direct `ninja` subprocess launched by this Firestorm Autobuild configuration.
+
 The local script requires the repository already be checked out at the import
 branch. The optional `check_linux_binary.sh` verifies OpenSim CMake flags, a Linux x86_64 ELF executable, and missing dynamic libraries; it does **not** perform an OpenSimulator grid login. Successful compilation is **not** equivalent to runtime compatibility:
 a launch and login test against an OpenSimulator-compatible test grid is still
