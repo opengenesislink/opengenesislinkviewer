@@ -1,4 +1,23 @@
-## Firestorm Pull Request Checklist
-Thank you for contributing to the Phoenix Firestorm Project.
-We will endeavour to review you changes and accept/reject/request changes as soon as possible. 
-Please read and follow the [Firestorm Pull Request Guidelines](https://github.com/firestormviewer/phoenix-firestorm/blob/master/FS_PR_GUIDELINES.md) to reduce the likelihood that we need to ask for "Bureaucratic" changes to make the code comply with our workflows.
+## Summary
+What user-visible or architectural problem does this solve?
+
+## Related Issue / Milestone
+Closes #
+Milestone: M
+
+## Risk and compatibility
+- [ ] Stock OpenSimulator fallback verified
+- [ ] Hypergrid behavior evaluated
+- [ ] Feature flag / rollback documented
+- [ ] Auth / data privacy implications reviewed
+- [ ] Third-party licenses / copyright notices preserved
+- [ ] No secrets or capability URLs in code/logs
+
+## Verification
+- [ ] Foundation checks pass
+- [ ] Native build and smoke tests after M1
+- [ ] Perf A/B results if renderer affected
+- [ ] Screenshots / logs / test scenario attached
+
+## Notes
+Any remaining limitations or follow-up issues:
