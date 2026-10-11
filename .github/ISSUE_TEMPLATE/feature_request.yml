@@ -1,0 +1,29 @@
+name: Feature request
+description: Propose a viewer capability or simulator integration
+title: "[FEATURE] "
+labels: []
+body:
+  - type: textarea
+    id: value
+    attributes:
+      label: Goal / user value
+    validations:
+      required: true
+  - type: textarea
+    id: criteria
+    attributes:
+      label: Acceptance criteria
+      description: Include testable outcomes
+    validations:
+      required: true
+  - type: textarea
+    id: interoperability
+    attributes:
+      label: Standard OpenSimulator fallback
+      description: What happens when server-side OGL features are absent?
+    validations:
+      required: true
+  - type: textarea
+    id: implications
+    attributes:
+      label: Risks / server changes / dependencies
