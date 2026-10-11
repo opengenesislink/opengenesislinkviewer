@@ -53,22 +53,20 @@ See [ROADMAP.md](ROADMAP.md) for sequencing, gates and definitions of done.
 - [scripts/import_firestorm.sh](scripts/import_firestorm.sh) — local guarded import helper
 - [GitHub Issues](https://github.com/opengenesislink/opengenesislinkviewer/issues) — work breakdown
 
-## Next operator action: source import
+## Next operator action: native Linux build and compatibility test
 
-An existing empty/scaffold repository is not automatically a GitHub **fork**.
-The helper prepares a history-preserving *source-import branch* locally. It
-does not execute a remote push on its own.
+The full Firestorm 7.2.4 source is imported in
+[draft PR #26](https://github.com/opengenesislink/opengenesislinkviewer/pull/26).
+The 13 inherited workflows are disabled; OGL's Foundation check now includes
+a static `ReleaseOS` source-import guard. **No Linux or Windows viewer binary
+has been built and verified yet.**
 
-```bash
-git clone https://github.com/opengenesislink/opengenesislinkviewer.git
-cd opengenesislinkviewer
-bash scripts/import_firestorm.sh
-# Review changes, run checks, then push and open a pull request:
-git push -u origin feature/firestorm-source-import
-```
-
-Do not replace the GitHub repository with a `git push --force`; preserve the
-foundation history and review the import as a separate change.
+For a first Linux OpenSimulator viewer build, check out the import branch and
+follow [docs/BUILD.md](docs/BUILD.md). That document includes a local
+`scripts/build_linux.sh` path and the new optional, manual
+`linux-releaseos.yml` CI runner specification. Do not merge this draft PR
+or publish installers before the native build, third-party license review,
+and OpenSimulator login smoke test have been completed.
 
 ## License and attribution
 
