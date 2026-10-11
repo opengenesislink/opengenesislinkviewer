@@ -38,7 +38,7 @@ if not any("-DINSTALL_PROPRIETARY=FALSE" in opts for opts in configs):
 # A ReleaseOS entry alone does not imply OPENSIM=ON; assert that the
 # native build script explicitly enables OpenSimulator support.
 native_script = (ROOT / "scripts/build_linux.sh").read_text(encoding="utf-8")
-for required in ("-DOPENSIM:BOOL=ON", "-DPACKAGE:BOOL=OFF"):
+for required in ("-DOPENSIM:BOOL=ON", "-DPACKAGE:BOOL=OFF", "-DVIEWER_CHANNEL:STRING=OpenGenesisLINK"):
     if required not in native_script:
         fail(f"native Linux script missing explicit build switch: {required}")
 
