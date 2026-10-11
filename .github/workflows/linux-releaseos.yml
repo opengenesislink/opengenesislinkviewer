@@ -74,6 +74,12 @@ jobs:
           export PATH="$RUNNER_TEMP/ogl-native-venv/bin:$PATH"
           bash scripts/build_linux.sh 2>&1 | tee ogl-ci-output/build.log
 
+      - name: Check compiled OpenSimulator ELF and linkage (not grid login)
+        shell: bash
+        run: |
+          set -euo pipefail
+          bash scripts/check_linux_binary.sh 2>&1 | tee ogl-ci-output/binary-smoke.log
+
       - name: Upload diagnostics only
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
