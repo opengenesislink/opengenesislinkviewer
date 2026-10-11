@@ -8,7 +8,8 @@ lacks source code until PR #26 is accepted. Commands are test candidates.
 
 The upstream Linux build instructions target Ubuntu 22.04 x86_64, GCC 11,
 16 GB+ RAM, 64 GB+ free disk space and a current `autobuild` tool.
-Verify requirements against the *pinned* release branch and runner image.\nRun `bash scripts/preflight_linux.sh` first on a dedicated Ubuntu 22.04 build machine to check toolchain, APT packages, architecture, glibc, memory and disk space.
+Verify requirements against the *pinned* release branch and runner image.
+Run `bash scripts/preflight_linux.sh` first on a dedicated Ubuntu 22.04 build machine to check toolchain, APT packages, architecture, glibc, memory and disk space.
 See https://github.com/FirestormViewer/phoenix-firestorm/blob/Firestorm_7.2.4/doc/building_linux.md
 
 Install prerequisites per upstream's Linux guide. Then:
@@ -19,6 +20,8 @@ cd opengenesislinkviewer
 git switch feature/firestorm-source-import
 # Do not use main until PR #26 has been reviewed and merged.
 git clone https://github.com/FirestormViewer/fs-build-variables.git ../fs-build-variables
+git -C ../fs-build-variables checkout c17312d38377c003977cf5b6dcc83c6042eba194
+bash scripts/preflight_linux.sh
 python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install -r requirements.txt
