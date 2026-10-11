@@ -1,9 +1,8 @@
 # OpenGenesisLINK Viewer (OGL Viewer)
 
-> **Status: Foundation / planning.** This repository currently contains the project
-> architecture, roadmap, development process and import tooling. The Firestorm
-> viewer source code has **not yet been imported**. There is no runnable OGL
-> Viewer binary at this stage.
+> **Status: M1 source import under review.** This branch includes the pinned
+> Firestorm 7.2.4 C++ source and both Git histories. The import has not yet
+> been merged into `main`, and no runnable OGL Viewer binary is verified.
 
 [![Foundation checks](https://github.com/opengenesislink/opengenesislinkviewer/actions/workflows/foundation.yml/badge.svg)](https://github.com/opengenesislink/opengenesislinkviewer/actions/workflows/foundation.yml)
 

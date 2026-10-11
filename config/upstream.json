@@ -3,7 +3,7 @@
   "source_repository": "https://github.com/FirestormViewer/phoenix-firestorm",
   "branch": "Firestorm_7.2.4",
   "commit": "10bd3c9f930c76e1427ddd4ecece6cdf36b4406d",
-  "source_imported": false,
+  "source_imported": true,
   "build_variant": "ReleaseOS",
-  "status": "proposed-baseline"
+  "status": "source-imported-into-draft-PR-26-unbuilt"
 }

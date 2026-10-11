@@ -1,7 +1,8 @@
-# Building OGL Viewer (after source import)
+# Building OGL Viewer (M1 source import branch)
 
-**Important:** The current foundation repository contains no Firestorm C++
-source. Commands below will not compile a viewer until the M1 import is merged.
+**Important:** The draft source-import branch contains Firestorm C++ sources,
+but the native OGL build has not been validated. The `main` branch still
+lacks source code until PR #26 is accepted. Commands are test candidates.
 
 ## Linux x64 (initial target)
 
