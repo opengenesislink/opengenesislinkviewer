@@ -39,9 +39,48 @@ settings: https://github.com/FirestormViewer/phoenix-firestorm/blob/Firestorm_7.
 
 ## CI policy
 
-Foundation GitHub Actions validates Markdown links and JSON contracts ONLY.
-Native Linux/Windows CI must be introduced after the source import and runner
-resource audit; a green foundation badge never means a binary was built.
+The **Foundation validation** GitHub Action checks documentation, JSON contracts,
+shell/Python syntax, and a static Firestorm source-import/ReleaseOS guard.
+It **does not** compile, package, or run the viewer.
+
+The OGL-owned `.github/workflows/linux-releaseos.yml` workflow introduces an
+opt-in **native Linux ReleaseOS compilation**. It has no release, signing,
+deployment, publish, or updater step. It uploads only short-lived diagnostic
+logs and source/build metadata, not a distributable installer.
+
+Native build runner requirements:
+
+- A **trusted, isolated**, self-hosted Linux x64 GitHub Actions runner carrying
+  the custom label `ogl-native-linux`. Do not use this runner for untrusted PRs.
+- Ubuntu 22.04, GCC/G++ 11, 16 GB+ RAM, 64 GiB+ free disk and the system
+  packages described above in the pinned upstream guide.
+- The workflow pins `FirestormViewer/fs-build-variables` to commit
+  `c17312d38377c003977cf5b6dcc83c6042eba194`, and runs the checked-out
+  OpenGenesisLINK source's `scripts/build_linux.sh` using `ReleaseOS`.
+- The workflow uses only `workflow_dispatch`. GitHub exposes a manually
+  triggered workflow in its Actions UI once its workflow file is present on
+  the default branch. Because PR #26 is still **draft**, run the script
+  locally on a prepared workstation to test this branch before merging.
+  Do not merge solely to expose the manual workflow.
+
+For a local smoke build, check out `feature/firestorm-source-import`,
+install dependencies listed above, then from the repository root:
+
+```bash
+git clone https://github.com/FirestormViewer/fs-build-variables.git ../fs-build-variables
+git -C ../fs-build-variables checkout c17312d38377c003977cf5b6dcc83c6042eba194
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements.txt
+export AUTOBUILD_VARIABLES_FILE="$(realpath ../fs-build-variables/variables)"
+python3 scripts/check_source_import.py
+bash scripts/build_linux.sh
+```
+
+The local script requires the repository already be checked out at the import
+branch. Successful compilation is **not** equivalent to runtime compatibility:
+a launch and login test against an OpenSimulator-compatible test grid is still
+required. Windows native CI remains outstanding under #7.
 
 ## Build artifact traceability
 
