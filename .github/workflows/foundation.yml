@@ -26,3 +26,4 @@ jobs:
         run: |
           bash -n scripts/import_firestorm.sh
           bash -n scripts/build_linux.sh
+          bash -n scripts/preflight_linux.sh
