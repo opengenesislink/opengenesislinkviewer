@@ -33,10 +33,10 @@ autobuild configure -A 64 -c ReleaseOS -- \
 
 cache="build-linux-x86_64/CMakeCache.txt"
 [[ -f "$cache" ]] || { echo "Missing CMakeCache: $cache" >&2; exit 1; }
-grep -q '^OPENSIM:BOOL=ON "$cache" || {
+grep -qx 'OPENSIM:BOOL=ON' "$cache" || {
   echo "OpenSimulator support was not enabled in $cache" >&2; exit 1;
 }
-grep -q '^PACKAGE:BOOL=OFF "$cache" || {
+grep -qx 'PACKAGE:BOOL=OFF' "$cache" || {
   echo "Packaging unexpectedly enabled in $cache" >&2; exit 1;
 }
 autobuild build -A 64 -c ReleaseOS --no-configure
