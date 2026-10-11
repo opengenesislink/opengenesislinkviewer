@@ -2,6 +2,9 @@
 
 **Planning baseline:** 2026-10-12. **Status:** targets, not delivery promises. All phases start as **Not started** unless a verified artifact explicitly states otherwise.
 
+The [GitHub implementation backlog](docs/BACKLOG.md) links the 25 created
+work items to these milestone phases.
+
 ## Principles and non-negotiable gates
 
 1. Maintain standard OpenSimulator/Hypergrid operation without OGL-only services.
