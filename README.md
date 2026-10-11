@@ -49,6 +49,7 @@ See [ROADMAP.md](ROADMAP.md) for sequencing, gates and definitions of done.
 - [docs/QA.md](docs/QA.md) — testing, metrics and releases
 - [docs/LEGAL.md](docs/LEGAL.md) — licensing and attribution checklist
 - [docs/PROJECT_STATUS.md](docs/PROJECT_STATUS.md) — current verified state
+- [docs/BACKLOG.md](docs/BACKLOG.md) — 25 tracked implementation issues
 - [config/ogl-features.schema.json](config/ogl-features.schema.json) — **proposed**, not implemented protocol contract
 - [scripts/import_firestorm.sh](scripts/import_firestorm.sh) — local guarded import helper
 - [GitHub Issues](https://github.com/opengenesislink/opengenesislinkviewer/issues) — work breakdown
