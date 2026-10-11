@@ -35,6 +35,13 @@ if not configs:
 if not any("-DINSTALL_PROPRIETARY=FALSE" in opts for opts in configs):
     fail("ReleaseOS lacks the expected non-proprietary build switch")
 
+# A ReleaseOS entry alone does not imply OPENSIM=ON; assert that the
+# native build script explicitly enables OpenSimulator support.
+native_script = (ROOT / "scripts/build_linux.sh").read_text(encoding="utf-8")
+for required in ("-DOPENSIM:BOOL=ON", "-DPACKAGE:BOOL=OFF"):
+    if required not in native_script:
+        fail(f"native Linux script missing explicit build switch: {required}")
+
 expected = {"foundation.yml", "linux-releaseos.yml"}
 active = {p.name for p in (ROOT / ".github/workflows").iterdir()
           if p.suffix in {".yml", ".yaml"}}
