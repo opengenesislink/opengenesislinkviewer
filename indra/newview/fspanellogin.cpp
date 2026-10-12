@@ -1219,9 +1219,9 @@ void FSPanelLogin::refreshOglGridBadge()
     const std::string grid = grids->getGrid();
     const bool second_life = grids->isInSecondLife();
 
-    badge->setText(second_life ? "Second Life" : "OpenSim Legacy");
+    badge->setText(LLStringExplicit(second_life ? "Second Life" : "OpenSim Legacy"));
     badge->setColor(LLUIColor(LLColor4(0.70f, 0.74f, 0.80f, 1.0f)));
-    badge->setToolTip("Kein bestaetigtes OGL-Discovery-Protokoll. Normaler Grid-Login bleibt erhalten.");
+    badge->setToolTip(LLStringExplicit("Kein bestaetigtes OGL-Discovery-Protokoll. Normaler Grid-Login bleibt erhalten."));
     if (grid.empty() || second_life)
     {
         return;
@@ -1247,9 +1247,9 @@ void FSPanelLogin::refreshOglGridBadge()
     const bool tls = (scheme == "https");
     const std::string url = scheme + "://" + login_uri.hostNameAndPort() + "/ogl/v1/grid-info";
 
-    badge->setText("OGL wird geprueft ...");
+    badge->setText(LLStringExplicit("OGL wird geprueft ..."));
     badge->setColor(LLUIColor(LLColor4(0.65f, 0.78f, 0.95f, 1.0f)));
-    badge->setToolTip("Pruefe das oeffentliche JSON-Discovery-Schema; keine Anmeldung.");
+    badge->setToolTip(LLStringExplicit("Pruefe das oeffentliche JSON-Discovery-Schema; keine Anmeldung."));
 
     LLCore::HttpOptions::ptr_t opts = std::make_shared<LLCore::HttpOptions>();
     opts->setTimeout(8);
@@ -1283,9 +1283,9 @@ void FSPanelLogin::onOglGridInfoResponse(const std::string& grid, U32 sequence,
         return;
     }
 
-    badge->setText("OpenSim Legacy");
+    badge->setText(LLStringExplicit("OpenSim Legacy"));
     badge->setColor(LLUIColor(LLColor4(0.70f, 0.74f, 0.80f, 1.0f)));
-    badge->setToolTip("Kein gueltiger OGL-v1-Nachweis. Standard-OpenSim-Login bleibt aktiv.");
+    badge->setToolTip(LLStringExplicit("Kein gueltiger OGL-v1-Nachweis. Standard-OpenSim-Login bleibt aktiv."));
     if (!succeeded)
     {
         return; // 404/timeouts/SSL errors are normal for legacy grids
@@ -1339,15 +1339,15 @@ void FSPanelLogin::onOglGridInfoResponse(const std::string& grid, U32 sequence,
 
     if (tls)
     {
-        badge->setText("OGL verifiziert");
+        badge->setText(LLStringExplicit("OGL verifiziert"));
         badge->setColor(LLUIColor(LLColor4(0.28f, 0.86f, 0.52f, 1.0f)));
-        badge->setToolTip("OGL-Discovery v1 ueber geprueftes HTTPS bestaetigt. Kein kryptographischer Betreiber- oder Clientnachweis.");
+        badge->setToolTip(LLStringExplicit("OGL-Discovery v1 ueber geprueftes HTTPS bestaetigt. Kein kryptographischer Betreiber- oder Clientnachweis."));
     }
     else
     {
-        badge->setText("OGL erkannt (HTTP)");
+        badge->setText(LLStringExplicit("OGL erkannt (HTTP)"));
         badge->setColor(LLUIColor(LLColor4(1.0f, 0.68f, 0.28f, 1.0f)));
-        badge->setToolTip("OGL-v1-Schema erkannt, aber ohne TLS nicht verifiziert. Zugangsdaten niemals deshalb als sicher ansehen.");
+        badge->setToolTip(LLStringExplicit("OGL-v1-Schema erkannt, aber ohne TLS nicht verifiziert. Zugangsdaten niemals deshalb als sicher ansehen."));
     }
 }
 
