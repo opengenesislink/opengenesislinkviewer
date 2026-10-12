@@ -109,6 +109,8 @@
 #include "llfilepicker.h"
 #include "llfirstuse.h"
 #include "llfloater.h"
+#include "llbutton.h"
+#include "llpanel.h"
 #include "llfloaterbuyland.h"
 #include "llfloatercamera.h"
 #include "llfloaterland.h"
@@ -2371,6 +2373,162 @@ void LLViewerWindow::initBase()
     // </FS:Zi>
 }
 
+// OpenGenesisLINK M2: collapsible, inworld left/right navigation overlays.
+// Existing Firestorm floaters remain authoritative; this is a visual launcher,
+// not a second inventory, map or chat implementation.
+namespace
+{
+struct OglEdgeSidebar
+{
+    LLPanel* panel = nullptr;      // owned by the root view
+    LLButton* toggle = nullptr;
+    LLTextBox* title = nullptr;
+    std::vector<LLButton*> actions;
+    bool right = false;
+    const char* expanded_setting = nullptr;
+};
+
+OglEdgeSidebar sOglLeftEdge;
+OglEdgeSidebar sOglRightEdge;
+
+constexpr S32 OGL_EDGE_RAIL_WIDTH = 42;
+constexpr S32 OGL_EDGE_OPEN_WIDTH = 260;
+constexpr S32 OGL_EDGE_OPEN_HEIGHT = 338;
+constexpr S32 OGL_EDGE_CLOSED_HEIGHT = 52;
+
+void oglPositionEdgeSidebar(OglEdgeSidebar& side, LLView* root)
+{
+    if (!side.panel || !root)
+    {
+        return;
+    }
+
+    const bool expanded = gSavedSettings.getBOOL(side.expanded_setting);
+    const S32 full_width = root->getRect().getWidth();
+    const S32 full_height = root->getRect().getHeight();
+    const S32 width = expanded ? llmin(OGL_EDGE_OPEN_WIDTH, llmax(170, full_width / 2)) : OGL_EDGE_RAIL_WIDTH;
+    const S32 height = expanded ? llmin(OGL_EDGE_OPEN_HEIGHT, llmax(190, full_height - 112))
+                                : OGL_EDGE_CLOSED_HEIGHT;
+    const S32 x = side.right ? llmax(0, full_width - width) : 0;
+    const S32 y = llmax(45, (full_height - height) / 2);
+
+    side.panel->setRect(LLRect(x, y + height, x + width, y));
+    side.panel->reshape(width, height);
+
+    const S32 toggle_left = side.right ? 4 : width - 38;
+    side.toggle->setRect(LLRect(toggle_left, height - 7, toggle_left + 34, height - 41));
+    side.toggle->setLabel(LLStringExplicit(side.right
+        ? (expanded ? ">" : "<") : (expanded ? "<" : ">")));
+
+    side.title->setVisible(expanded);
+    side.title->setRect(LLRect(side.right ? 46 : 15, height - 11,
+                               side.right ? width - 10 : width - 44, height - 43));
+
+    for (size_t i = 0; i < side.actions.size(); ++i)
+    {
+        LLButton* button = side.actions[i];
+        button->setVisible(expanded);
+        button->setRect(LLRect(16, height - 77 - static_cast<S32>(i) * 60,
+                               width - 16, height - 119 - static_cast<S32>(i) * 60));
+    }
+}
+
+void oglUpdateEdgeSidebars(LLView* root)
+{
+    oglPositionEdgeSidebar(sOglLeftEdge, root);
+    oglPositionEdgeSidebar(sOglRightEdge, root);
+}
+
+void oglAddEdgeAction(OglEdgeSidebar& side, LLPanel* panel,
+                      const std::string& name, const std::string& label,
+                      const std::string& floater_key)
+{
+    LLButton::Params params;
+    params.name(name);
+    params.label(label);
+    params.rect(LLRect(16, 100, 244, 58));
+    params.follows.flags(FOLLOWS_LEFT | FOLLOWS_TOP);
+    LLButton* button = LLUICtrlFactory::create<LLButton>(params);
+    button->setClickedCallback([floater_key](LLUICtrl*, const LLSD&)
+    {
+        LLFloaterReg::toggleInstance(floater_key);
+    });
+    panel->addChild(button);
+    side.actions.push_back(button);
+}
+
+void oglBuildEdgeSidebar(OglEdgeSidebar& side, LLView* root,
+                         bool right, const char* setting,
+                         const char* name, const char* heading)
+{
+    side.right = right;
+    side.expanded_setting = setting;
+
+    LLPanel::Params panel_params;
+    panel_params.name(name);
+    panel_params.rect(LLRect(0, OGL_EDGE_OPEN_HEIGHT, OGL_EDGE_OPEN_WIDTH, 0));
+    panel_params.follows.flags(right ? FOLLOWS_RIGHT | FOLLOWS_TOP : FOLLOWS_LEFT | FOLLOWS_TOP);
+    panel_params.background_visible(true);
+    panel_params.background_opaque(true);
+    panel_params.bg_opaque_color(LLColor4(0.055f, 0.085f, 0.135f, 0.95f));
+    side.panel = LLUICtrlFactory::create<LLPanel>(panel_params);
+    root->addChild(side.panel);
+
+    LLTextBox::Params heading_params;
+    heading_params.name(std::string(name) + "_heading");
+    heading_params.initial_value(heading);
+    heading_params.rect(LLRect(15, 325, 218, 288));
+    side.title = LLUICtrlFactory::create<LLTextBox>(heading_params);
+    side.title->setColor(LLUIColor(LLColor4(0.56f, 0.80f, 1.0f, 1.0f)));
+    side.panel->addChild(side.title);
+
+    LLButton::Params toggle_params;
+    toggle_params.name(std::string(name) + "_toggle");
+    toggle_params.label(right ? "<" : ">");
+    toggle_params.rect(LLRect(4, 330, 38, 296));
+    side.toggle = LLUICtrlFactory::create<LLButton>(toggle_params);
+    side.toggle->setToolTip(LLStringExplicit("OpenGenesisLINK Seitenmenue ein- oder ausklappen"));
+    side.toggle->setClickedCallback([&side, root](LLUICtrl*, const LLSD&)
+    {
+        gSavedSettings.setBOOL(side.expanded_setting, !gSavedSettings.getBOOL(side.expanded_setting));
+        oglPositionEdgeSidebar(side, root);
+    });
+    side.panel->addChild(side.toggle);
+}
+
+void oglInitEdgeSidebars(LLView* root)
+{
+    if (!root || sOglLeftEdge.panel || !gSavedSettings.getBOOL("OGLSidebarsEnabled"))
+    {
+        return;
+    }
+
+    oglBuildEdgeSidebar(sOglLeftEdge, root, false, "OGLLeftSidebarExpanded",
+                        "ogl_left_drawer", "MEIN NEXVERSE");
+    oglAddEdgeAction(sOglLeftEdge, sOglLeftEdge.panel, "ogl_inventory", "Inventar", "inventory");
+    oglAddEdgeAction(sOglLeftEdge, sOglLeftEdge.panel, "ogl_appearance", "Avatar & Outfits", "appearance");
+    oglAddEdgeAction(sOglLeftEdge, sOglLeftEdge.panel, "ogl_people", "Kontakte & Gruppen", "people");
+    oglAddEdgeAction(sOglLeftEdge, sOglLeftEdge.panel, "ogl_chat", "Chat", "fs_nearby_chat");
+
+    oglBuildEdgeSidebar(sOglRightEdge, root, true, "OGLRightSidebarExpanded",
+                        "ogl_right_drawer", "WELT & WERKZEUGE");
+    oglAddEdgeAction(sOglRightEdge, sOglRightEdge.panel, "ogl_map", "Weltkarte", "world_map");
+    oglAddEdgeAction(sOglRightEdge, sOglRightEdge.panel, "ogl_minimap", "Minikarte", "mini_map");
+    oglAddEdgeAction(sOglRightEdge, sOglRightEdge.panel, "ogl_build", "Bauen", "build");
+    oglAddEdgeAction(sOglRightEdge, sOglRightEdge.panel, "ogl_preferences", "Einstellungen", "preferences");
+
+    oglUpdateEdgeSidebars(root);
+    LL_INFOS("OGLUI") << "OpenGenesisLINK collapsible inworld edge menus initialized" << LL_ENDL;
+}
+
+void oglResetEdgeSidebars()
+{
+    // Root view owns the panels and their children; do not double-delete.
+    sOglLeftEdge = OglEdgeSidebar();
+    sOglRightEdge = OglEdgeSidebar();
+}
+} // anonymous namespace
+
 void LLViewerWindow::initWorldUI()
 {
     if (gNonInteractive)
@@ -2567,11 +2725,15 @@ void LLViewerWindow::initWorldUI()
     FSNearbyChat::instance().showDefaultChatBar(visible);
     gSavedSettings.setBOOL("MainChatbarVisible",visible);
     // </FS:Zi>
+
+    // Created after the normal inworld UI: login screen remains unchanged.
+    oglInitEdgeSidebars(mRootView);
 }
 
 // Destroy the UI
 void LLViewerWindow::shutdownViews()
 {
+    oglResetEdgeSidebars();
     // clean up warning logger
     RecordToChatConsole::getInstance()->stopRecorder();
     LL_INFOS() << "Warning logger is cleaned." << LL_ENDL ;
@@ -2784,6 +2946,7 @@ void LLViewerWindow::reshape(S32 width, S32 height)
         // round up when converting coordinates to make sure there are no gaps at edge of window
         LLView::sForceReshape = display_scale_changed;
         mRootView->reshape(llceil((F32)width / mDisplayScale.mV[VX]), llceil((F32)height / mDisplayScale.mV[VY]));
+        oglUpdateEdgeSidebars(mRootView);
         if (display_scale_changed)
         {
             // Needs only a 'scale change' update, everything else gets handled by LLLayoutStack::updateClass()
