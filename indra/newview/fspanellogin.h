@@ -96,6 +96,10 @@ private:
     void onModeChange(const LLSD& original_value, const LLSD& new_value);
     void onModeChangeConfirm(const LLSD& original_value, const LLSD& new_value, const LLSD& notification, const LLSD& response);
     void onSelectServer();
+    // OGL discovery is public metadata only; it never carries login credentials.
+    void refreshOglGridBadge();
+    static void onOglGridInfoResponse(const std::string& grid, U32 sequence,
+                                      bool tls, bool succeeded, const LLSD& data);
     void onLocationSLURL();
     void onUsernameTextChanged();
     void syncShowHidePasswordButton();          // Update which button is shown based on mShowPassword
@@ -140,6 +144,7 @@ private:
     static std::string  sPassword;
     static std::string  sPendingNewGridURI;
 
+    U32             mOglDiscoverySequence = 0; // ignore obsolete async grid responses
     bool            mInitialized;
 };
 
