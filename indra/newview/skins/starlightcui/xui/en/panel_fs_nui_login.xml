@@ -26,18 +26,18 @@
     name="login_html"
     start_url=""
     top="18"
-    height="598"
+    height="574"
     width="1024" />
   <layout_stack
   follows="left|right|bottom"
-  height="152"
+  height="176"
   left="0"
   name="ui_stack"
   orientation="horizontal"
   bottom="-1"
   width="1024">
     <layout_panel
-      height="152"
+      height="176"
       auto_resize="true"
       name="ui_elastic_pad_left"
       width="27" />
@@ -48,7 +48,7 @@
       layout="topleft"
       width="970"
       min_width="970"
-      height="152">
+      height="176">
   <icon
     height="125"
     width="125"
@@ -67,7 +67,7 @@
       top="0"
       left_pad="10"
       width="685"
-      height="152">
+      height="176">
     <layout_panel
       auto_resize="false"
       follows="all"
@@ -231,7 +231,7 @@
       name="2nd_row"
       layout="topleft"
       top_pad="0"
-      height="66"
+      height="90"
       width="685">
     <layout_stack
       animate="false"
@@ -243,14 +243,14 @@
       top_pad="0"
       left="0"
       width="685"
-      height="66">
+      height="90">
     <layout_panel
       auto_resize="false"
       follows="left|top|right"
       name="grid_panel"
       layout="topleft"
       width="342"
-      height="66"
+      height="90"
       visible="true">
     <text
       follows="left|bottom"
@@ -282,13 +282,27 @@
     <combo_box.drop_down_button
       font="SansSerifLarge"/>
     </combo_box>
+    <!-- OGL server discovery badge: never implies verified avatar credentials. -->
+    <text
+      follows="left|top"
+      font="SansSerifSmall"
+      text_color="0.70 0.74 0.80 1"
+      height="17"
+      top="67"
+      left="45"
+      width="285"
+      name="ogl_grid_badge"
+      tool_tip="OGL v1 JSON-Discovery wird beim Gridwechsel geprueft.">
+      OpenSim Legacy
+    </text>
+
     </layout_panel>
 
     <layout_panel
       follows="left|top|right"
       name="mode_selection"
       width="342"
-      height="66">
+      height="90">
     <text
       follows="right|top"
       font="SansSerifLarge"
