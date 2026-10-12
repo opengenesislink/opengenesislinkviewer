@@ -62,23 +62,37 @@ Server example values such as `grid.name` are illustrative and **must not**
 be hard-coded into the client. Unknown future feature flags are disabled by
 default; do not enable functionality merely because a key is present.
 
-## Proposed OGL viewer implementation (NOT YET CODED)
+## OGL viewer login-badge implementation (first native C++ integration)
 
 Primary existing Firestorm/OpenSimulator grid discovery:
-`indra/newview/fsgridhandler.cpp` currently obtains `/get_grid_info`
-using `FSCoreHttpUtil::callbackHttpGetRaw`. Preserve that working behavior.
+`indra/newview/fsgridhandler.cpp` still obtains `/get_grid_info` using
+`FSCoreHttpUtil::callbackHttpGetRaw`; this compatibility path is preserved.
+
+Implemented in `indra/newview/fspanellogin.cpp`, with XUI text fields
+`ogl_grid_badge` in the default, Starlight and Starlight CUI classic/NUI
+login panels. The badge is requested asynchronously each time the selected
+grid changes. It does not alter grid login credentials, login endpoints,
+CAPS, authorization or the underlying Firestorm compatibility code.
 
 1. For grids selected by the user, initiate an **optional** GET for the
    versioned OGL JSON contract. Do not assume third-party grids implement it.
-2. Accept only a successfully parsed bounded JSON document whose exact
-   `schema` and `protocol_version` match the supported v1. Validate
-   field types and reject malformed/oversized/unexpected responses. A
-   404, timeout, invalid JSON, unsupported version or other error is
-   **non-fatal**: retain standard Firestorm/OpenSimulator grid discovery.
-3. Expose successfully negotiated OGL capabilities to future OGL-specific
-   UI components without mutating or replacing the standard
-   `login_to_simulator` and CAPS routes. Keep one authoritative login
-   session and avatar identity.
+   The request uses the selected grid's login URI scheme/host/port and appends
+   `/ogl/v1/grid-info` to its origin. It has an 8-second timeout, TLS
+   certificate+hostname checks and **redirects disabled**.
+2. Accept only a successfully parsed JSON document (up to 32 KiB) whose
+   exact `schema`, `protocol_version`, `server.product`,
+   `features.ogl_grid_info_v1` and `endpoints.ogl_grid_info` match the
+   expected v1 values. A 404, timeout, invalid JSON, unsupported version,
+   certificate failure or other error is **non-fatal**: the login UI shows
+   **OpenSim Legacy** and the normal Firestorm/OpenSimulator login proceeds.
+3. Currently expose the result as an in-login text badge: **OpenSim Legacy**
+   (neutral), **OGL wird geprueft ...** (informational),
+   **OGL erkannt (HTTP)** (amber), or **OGL verifiziert** (green only after
+   valid HTTPS/TLS discovery). The last label verifies the **transport and
+   discovery schema for this grid hostname**, **not** any vendor-issued
+   certification or the running viewer binary. A tooltip explains this.
+   Persisted feature negotiation for other OGL UI components is a later step;
+   keep the one authoritative legacy login session and avatar identity.
 4. Never infer the authenticity of the viewer or authorize a privileged
    action from `server.product`, the viewer's channel, `User-Agent`,
    IP address or public discovery data. Gate OGL-specific actions through
@@ -103,7 +117,10 @@ Suggested tests before claiming viewer support:
 - old OpenSimulator and Firestorm grids still log in normally;
 - no secrets or full authentication payloads in client diagnostic logs.
 
-**Current viewer state:** native Linux `ReleaseOS` compiled and logged in
-successfully via the legacy-compatible path; OGL v1 JSON negotiation is
-**not yet implemented**. This document is the integration handoff,
-not a claim of an implemented client capability.
+**Current viewer state:** The original Linux `ReleaseOS` binary logged in
+successfully via legacy OpenSim protocols. The new login-screen status UI
+and C++ JSON probe are implemented on the feature branch, but they require
+fresh native binary/regression validation before claiming a passed runtime
+UI test. The native OGL login protocol and broader feature negotiation are
+**not implemented**. The live server's OGL endpoint was still HTTP 404 at
+last check, so a live NexVerse probe currently yields **OpenSim Legacy**.
