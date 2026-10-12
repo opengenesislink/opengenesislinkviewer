@@ -142,3 +142,6 @@ __pycache__/
 *.log
 .tmp/
 .DS_Store
+
+# Isolated local GUI runtime can contain credentials, settings and caches.
+ogl-runtime-test/
