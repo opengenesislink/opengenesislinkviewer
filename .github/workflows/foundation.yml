@@ -22,8 +22,10 @@ jobs:
         run: python3 scripts/check_source_import.py
       - name: Verify OGL discovery badge source and XUI layouts (static only)
         run: python3 scripts/check_ogl_grid_badge.py
+      - name: Verify M2 collapsible edge menus (static only)
+        run: python3 scripts/check_ogl_edge_sidebars.py
       - name: Check Python syntax
-        run: python3 -m py_compile scripts/check_scaffold.py scripts/check_source_import.py scripts/check_ogl_grid_badge.py
+        run: python3 -m py_compile scripts/check_scaffold.py scripts/check_source_import.py scripts/check_ogl_grid_badge.py scripts/check_ogl_edge_sidebars.py
       - name: Check shell syntax
         run: |
           bash -n scripts/import_firestorm.sh
