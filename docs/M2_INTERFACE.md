@@ -26,7 +26,7 @@ existing `gSavedSettings` configuration.
 | Bauen | `build` |
 | Einstellungen | `preferences` |
 
-The menus use opaque slate-blue panels and pale-blue titles. They preserve
+The menus use deep navy panels, cyan section headings and larger high-contrast action buttons (M2 visual-polish pass 1, 2026-10-12). They preserve
 the complete world viewport (no camera resizing), so they can overlap the
 world. Buttons toggle **existing** registered floaters. They do not replace
 toolbars, hide required controls, change authentication or reimplement
@@ -62,7 +62,7 @@ instantiating overlays before `initWorldUI`.
 6. Confirm no regression to grid selection/login, inventory/chat, or
    OpenSimulator and Firestorm-compatible behavior.
 
-These first menus are **native and functional** but do not yet feature
+The visual reference is a generated concept, **not** a capture of the actual running C++ viewer. Native controls and widget behavior must be visually reviewed in-world after each styling pass. These first menus are **native and functional** but do not yet feature
 animated drawers, icon artwork, user-editable item order, mobile/touch
 navigation, per-theme visual tuning or keyboard shortcuts. Those are
 subsequent M2 iterations, not features claimed complete here.
