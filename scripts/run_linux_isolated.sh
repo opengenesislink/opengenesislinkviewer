@@ -14,12 +14,13 @@ BIN="$APP/bin/do-not-directly-run-firestorm-bin"
 
 RUN="${OGL_TEST_ROOT:-$ROOT/ogl-runtime-test}"
 [[ "$RUN" = /* ]] || { echo "OGL_TEST_ROOT must be absolute" >&2; exit 1; }
-mkdir -p "$RUN"/{home,config,cache,data,state,logs,firestorm-x64-appdata}
+mkdir -p "$RUN"/{home,config,cache,data,state,logs,opengenesislink-x64-appdata}
 
-# Current imported Firestorm code uses getpwuid(), not $HOME, and the
-# Firestorm_x64 app-data name. This special override prevents any reads/writes
-# from reaching the normal ~/.firestorm_x64 user settings or cache.
-export FIRESTORM_X64_USER_DIR="$RUN/firestorm-x64-appdata"
+# OpenGenesisLINK M2 uses its own OpenGenesisLINK_x64 application identity.
+# Linux obtains the real home using getpwuid(), not $HOME. Set the matching
+# application-specific override so this test never touches even the regular
+# ~/.opengenesislink_x64 user profile (nor the original ~/.firestorm_x64).
+export OPENGENESISLINK_X64_USER_DIR="$RUN/opengenesislink-x64-appdata"
 export XDG_CONFIG_HOME="$RUN/config"
 export XDG_CACHE_HOME="$RUN/cache"
 export XDG_DATA_HOME="$RUN/data"
@@ -37,5 +38,5 @@ export LD_LIBRARY_PATH="$APP/lib:${LD_LIBRARY_PATH:-}"
 export SDL_VIDEO_X11_DGAMOUSE=0
 ulimit -c 0
 cd "$APP"
-echo "Starting OpenGenesisLINK viewer; all app data in $FIRESTORM_X64_USER_DIR"
+echo "Starting OpenGenesisLINK viewer; all app data in $OPENGENESISLINK_X64_USER_DIR"
 exec "$BIN" "$@"
