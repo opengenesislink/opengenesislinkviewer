@@ -119,8 +119,12 @@ Suggested tests before claiming viewer support:
 
 **Current viewer state:** The original Linux `ReleaseOS` binary logged in
 successfully via legacy OpenSim protocols. The new login-screen status UI
-and C++ JSON probe are implemented on the feature branch, but they require
-fresh native binary/regression validation before claiming a passed runtime
-UI test. The native OGL login protocol and broader feature negotiation are
+and C++ JSON probe are implemented on the feature branch. A native
+Linux Mint incremental C++ build and the staged ELF/library smoke test both
+passed on 2026-10-12; an actual isolated X11 login-window screenshot confirms
+the **OpenSim Legacy** label visibly rendered for Stadt NexVerse while the
+live `/ogl/v1/grid-info` endpoint returned HTTP 404. The HTTPS-valid
+**OGL verifiziert** and HTTP-valid **OGL erkannt (HTTP)** rendering branches
+have not yet been validated with a live versioned JSON server. The native OGL login protocol and broader feature negotiation are
 **not implemented**. The live server's OGL endpoint was still HTTP 404 at
 last check, so a live NexVerse probe currently yields **OpenSim Legacy**.
