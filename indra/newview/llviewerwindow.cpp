@@ -2392,9 +2392,9 @@ OglEdgeSidebar sOglLeftEdge;
 OglEdgeSidebar sOglRightEdge;
 
 constexpr S32 OGL_EDGE_RAIL_WIDTH = 42;
-constexpr S32 OGL_EDGE_OPEN_WIDTH = 260;
-constexpr S32 OGL_EDGE_OPEN_HEIGHT = 338;
-constexpr S32 OGL_EDGE_CLOSED_HEIGHT = 52;
+constexpr S32 OGL_EDGE_OPEN_WIDTH = 290;
+constexpr S32 OGL_EDGE_OPEN_HEIGHT = 396;
+constexpr S32 OGL_EDGE_CLOSED_HEIGHT = 58;
 
 void oglPositionEdgeSidebar(OglEdgeSidebar& side, LLView* root)
 {
@@ -2407,7 +2407,7 @@ void oglPositionEdgeSidebar(OglEdgeSidebar& side, LLView* root)
     const S32 full_width = root->getRect().getWidth();
     const S32 full_height = root->getRect().getHeight();
     const S32 width = expanded ? llmin(OGL_EDGE_OPEN_WIDTH, llmax(170, full_width / 2)) : OGL_EDGE_RAIL_WIDTH;
-    const S32 height = expanded ? llmin(OGL_EDGE_OPEN_HEIGHT, llmax(190, full_height - 112))
+    const S32 height = expanded ? llmin(OGL_EDGE_OPEN_HEIGHT, llmax(240, full_height - 112))
                                 : OGL_EDGE_CLOSED_HEIGHT;
     const S32 x = side.right ? llmax(0, full_width - width) : 0;
     const S32 y = llmax(45, (full_height - height) / 2);
@@ -2416,20 +2416,20 @@ void oglPositionEdgeSidebar(OglEdgeSidebar& side, LLView* root)
     side.panel->reshape(width, height);
 
     const S32 toggle_left = side.right ? 4 : width - 38;
-    side.toggle->setRect(LLRect(toggle_left, height - 7, toggle_left + 34, height - 41));
+    side.toggle->setRect(LLRect(toggle_left, height - 12, toggle_left + 34, height - 46));
     side.toggle->setLabel(LLStringExplicit(side.right
         ? (expanded ? ">" : "<") : (expanded ? "<" : ">")));
 
     side.title->setVisible(expanded);
-    side.title->setRect(LLRect(side.right ? 46 : 15, height - 11,
-                               side.right ? width - 10 : width - 44, height - 43));
+    side.title->setRect(LLRect(side.right ? 47 : 20, height - 20,
+                               side.right ? width - 14 : width - 47, height - 49));
 
     for (size_t i = 0; i < side.actions.size(); ++i)
     {
         LLButton* button = side.actions[i];
         button->setVisible(expanded);
-        button->setRect(LLRect(16, height - 77 - static_cast<S32>(i) * 60,
-                               width - 16, height - 119 - static_cast<S32>(i) * 60));
+        button->setRect(LLRect(18, height - 84 - static_cast<S32>(i) * 78,
+                               width - 18, height - 142 - static_cast<S32>(i) * 78));
     }
 }
 
@@ -2446,7 +2446,9 @@ void oglAddEdgeAction(OglEdgeSidebar& side, LLPanel* panel,
     LLButton::Params params;
     params.name(name);
     params.label(label);
-    params.rect(LLRect(16, 100, 244, 58));
+    params.rect(LLRect(18, 110, 272, 52));
+    params.font_color(LLUIColor(LLColor4(0.76f, 0.89f, 1.0f, 1.0f)));
+    params.font_color_disabled(LLUIColor(LLColor4(0.41f, 0.52f, 0.64f, 1.0f)));
     params.follows.flags(FOLLOWS_LEFT | FOLLOWS_TOP);
     LLButton* button = LLUICtrlFactory::create<LLButton>(params);
     button->setClickedCallback([floater_key](LLUICtrl*, const LLSD&)
@@ -2470,22 +2472,23 @@ void oglBuildEdgeSidebar(OglEdgeSidebar& side, LLView* root,
     panel_params.follows.flags(right ? FOLLOWS_RIGHT | FOLLOWS_TOP : FOLLOWS_LEFT | FOLLOWS_TOP);
     panel_params.background_visible(true);
     panel_params.background_opaque(true);
-    panel_params.bg_opaque_color(LLColor4(0.055f, 0.085f, 0.135f, 0.95f));
+    panel_params.bg_opaque_color(LLColor4(0.032f, 0.055f, 0.092f, 0.96f));
     side.panel = LLUICtrlFactory::create<LLPanel>(panel_params);
     root->addChild(side.panel);
 
     LLTextBox::Params heading_params;
     heading_params.name(std::string(name) + "_heading");
     heading_params.initial_value(heading);
-    heading_params.rect(LLRect(15, 325, 218, 288));
+    heading_params.rect(LLRect(20, 377, 245, 347));
     side.title = LLUICtrlFactory::create<LLTextBox>(heading_params);
-    side.title->setColor(LLUIColor(LLColor4(0.56f, 0.80f, 1.0f, 1.0f)));
+    side.title->setColor(LLUIColor(LLColor4(0.41f, 0.77f, 1.0f, 1.0f)));
     side.panel->addChild(side.title);
 
     LLButton::Params toggle_params;
     toggle_params.name(std::string(name) + "_toggle");
     toggle_params.label(right ? "<" : ">");
-    toggle_params.rect(LLRect(4, 330, 38, 296));
+    toggle_params.rect(LLRect(4, 384, 38, 350));
+    toggle_params.font_color(LLUIColor(LLColor4(0.39f, 0.76f, 1.0f, 1.0f)));
     side.toggle = LLUICtrlFactory::create<LLButton>(toggle_params);
     side.toggle->setToolTip(LLStringExplicit("OpenGenesisLINK Seitenmenue ein- oder ausklappen"));
     side.toggle->setClickedCallback([&side, root](LLUICtrl*, const LLSD&)
