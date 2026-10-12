@@ -170,6 +170,15 @@ automatic login. This validates application launch and the login screen,
 **not** authenticating or entering a test region; that requires a
 credentialed, manually supervised OpenSimulator smoke test.
 
+For the Stadt NexVerse endpoint found in the developer workstation's saved
+public grid metadata, `http://hg.stadt-nexverse.de/get_grid_info` returned
+HTTP 200, but an HTTPS request to port 443 could not connect on
+2026-10-12. **Do not enter production avatar passwords over an unencrypted
+HTTP login endpoint.** Configure a working TLS endpoint first or, if protocol
+compatibility testing is essential, use a disposable test account with no
+privileges and no reused credentials. No password was imported from the
+original profile, and no avatar login was attempted during this M1 smoke.
+
 ## Build artifact traceability
 
 Release artifacts must record source SHA, upstream SHA, compiler, dependencies,
