@@ -2,11 +2,13 @@
 
 **M1 status (2026-10-12):** A complete Linux Mint 22.3 x86_64 native
 `ReleaseOS` C++ build passed on a dedicated developer worktree (`OPENSIM=ON`,
-`PACKAGE=OFF`). The staged ELF/linkage check passed and the viewer reached
-`STATE_LOGIN_WAIT` in an X11 GUI session, with isolated user settings.
-**This does not qualify as an Ubuntu 22.04 release build or an OpenSimulator
-avatar-login test.** The import PR #26 remains a draft; `main` lacks the
-imported source until review and merge.
+`PACKAGE=OFF`). Staged ELF/linkage checks passed, the viewer opened its X11
+GUI with isolated user settings, and an interactive Stadt NexVerse avatar
+login subsequently completed through `STATE_STARTED`, confirmed both by the
+user and the isolated viewer startup state log.
+**This does not qualify as an Ubuntu 22.04 reference release build, Windows
+build, complete in-world regression suite, or secure production login.** The
+import PR #26 remains a draft; `main` lacks imported source until review.
 
 ## Linux x64 (initial target)
 
@@ -169,6 +171,17 @@ The successful GUI startup reached `STATE_BROWSER_INIT --> STATE_LOGIN_SHOW
 automatic login. This validates application launch and the login screen,
 **not** authenticating or entering a test region; that requires a
 credentialed, manually supervised OpenSimulator smoke test.
+
+**Subsequent authenticated login smoke, 2026-10-12:** After the initial
+pre-login smoke, the developer signed into Stadt NexVerse successfully. The
+isolated `Firestorm.log` recorded the transitions `STATE_LOGIN_WAIT` through
+`STATE_LOGIN_PROCESS_RESPONSE`, `STATE_WORLD_INIT`, `STATE_SEED_CAP_GRANTED`,
+`STATE_AGENT_SEND`, `STATE_INVENTORY_SKEL`, `STATE_PRECACHE`, and finally
+`STATE_STARTED`. The viewer remained running. Inventory initialization
+occurred, but item interactions, teleports, LSL behavior and voice sessions
+have not yet been tested. No login credentials or complete authentication
+log lines were copied into this repository. **The HTTP-only grid endpoint
+remains a security concern despite this functional login success.**
 
 For the Stadt NexVerse endpoint found in the developer workstation's saved
 public grid metadata, `http://hg.stadt-nexverse.de/get_grid_info` returned
