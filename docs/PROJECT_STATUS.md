@@ -13,6 +13,39 @@ Last foundation update: 2026-10-12.
 | OGL proprietary API endpoints | **Not implemented** |
 | Renderer/HydroEngine integration | **Not implemented** |
 | CI | Upstream workflows disabled; Foundation/static ReleaseOS checks pass. Local Mint ReleaseOS compile and GUI/login smoke passed; Ubuntu 22.04 self-hosted native workflow not run, Windows native CI pending |
-| M1 runtime and security | Avatar login / region entry **passed** (user confirmation and isolated Firestorm.log state `STATE_STARTED` on 2026-10-12). Inventory startup sequence traversed, but inventory interaction, teleport, LSL and voice are not verified. Native viewer currently inherits the Firestorm-specific Linux profile identity; separate launch via `FIRESTORM_X64_USER_DIR` has been verified. The NexVerse login endpoint is HTTP-only in the observed test; HTTPS/TLS remains an explicit security gate |\n| Production release | None |
+| M1 runtime and security | Avatar login / region entry **passed** (user confirmation and isolated Firestorm.log state `STATE_STARTED` on 2026-10-12). User-reported interactive checks passed on 2026-10-12 for avatar rendering, inventory usage, teleport, chat and LSL; these are functional acceptance reports, not automated regression evidence. Voice is **not testable yet** because the OpenGenesisLINK server does not currently provide voice support; this is a server-side test dependency, **not a demonstrated viewer bug**. Native viewer currently inherits the Firestorm-specific Linux profile identity; separate launch via `FIRESTORM_X64_USER_DIR` has been verified. The NexVerse login endpoint is HTTP-only in the observed test; HTTPS/TLS remains an explicit security gate |
+| Production release | None |
+
+
+## M1 OpenSimulator functional test matrix (2026-10-12)
+
+These results were explicitly confirmed by the developer while testing the
+native Linux Mint `ReleaseOS` viewer on Stadt NexVerse. Interactive checks
+are **user-reported** unless a log-based verification is separately noted.
+
+| Test | Result | Basis |
+| --- | --- | --- |
+| Native Linux C++ build | PASS | Local build log, exit 0 |
+| Staged ELF and shared libraries | PASS | Local binary smoke check, exit 0 |
+| Viewer GUI initialization | PASS | Window observed; isolated startup log |
+| OpenSimulator login / region entry | PASS | `STATE_STARTED` in isolated startup log and developer confirmation |
+| Avatar rendering | PASS (user-reported) | Inworld visual test |
+| Inventory interaction | PASS (user-reported) | Inworld functional test; not merely inventory initialization |
+| Region teleport | PASS (user-reported) | Inworld functional test |
+| Chat | PASS (user-reported) | Inworld functional test |
+| LSL | PASS (user-reported) | Inworld script functional test |
+| Voice | BLOCKED: SERVER DEPENDENCY | No voice backend available on the OpenGenesisLINK server; viewer side not validated |
+| Ubuntu 22.04 reference build | PENDING | Native CI runner/reference build required |
+| Windows x64 build | PENDING | Native compilation and smoke test required |
+| Distinct product identity and user-data paths | PENDING | Runtime override works; durable application naming still required |
+| TLS-protected grid login | PENDING: SECURITY GATE | Observed login URI is HTTP; HTTPS port 443 unavailable during earlier probe |
+| License / third-party notice audit | PENDING | Audit before release and PR merge |
+
+For M1, voice is classified as **deferred and untested**, not failed. Do not
+claim voice compatibility or count a nonexistent server voice service as a
+client regression. Reopen end-to-end voice validation as soon as the server
+component supports it; any release without voice must disclose the missing
+feature. The remaining build, security, licensing and identity gates stay
+open; PR #26 must remain draft until its merge criteria are met.
 
 Update this file only when verification evidence (commit, test log, artifact) exists. Do not mark milestones complete on the basis of a plan alone.
