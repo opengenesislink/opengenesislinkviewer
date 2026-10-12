@@ -39,4 +39,14 @@ for anchor in (
     '"world_map"', '"mini_map"', '"build"', '"preferences"',
 ):
     assert anchor in src, f"Missing sidebar contract: {anchor}"
+# Ensure the Linux test runtime cannot silently fall back to the default
+# original Firestorm settings path as happened during the first M1 smoke run.
+identity = (root / "indra/newview/llappviewer.cpp").read_text(encoding="utf-8")
+launcher = (root / "scripts/run_linux_isolated.sh").read_text(encoding="utf-8")
+assert 'initAppDirs("OpenGenesisLINK_x64")' in identity
+assert 'initAppDirs("OpenGenesisLINK")' in identity
+assert 'export OPENGENESISLINK_X64_USER_DIR=' in launcher
+assert 'export FIRESTORM_X64_USER_DIR=' not in launcher
+print("OpenGenesisLINK standalone app-data identity: static guard PASS")
+
 print("OGL M2 collapsible inworld sidebars: static guard PASS")
