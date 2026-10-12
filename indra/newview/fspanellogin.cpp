@@ -56,6 +56,9 @@
 #include "llui.h"
 #include "lluiconstants.h"
 #include "llslurl.h"
+#include "lluri.h"
+#include "fscorehttputil.h"
+#include <boost/json.hpp>
 #include "llversioninfo.h"
 #include "llviewerhelp.h"
 #include "llviewertexturelist.h"
@@ -1196,6 +1199,158 @@ void FSPanelLogin::updateServer()
     }
 }
 
+// Public discovery probe for the currently selected grid. Never replaces the
+// existing Firestorm/OpenSimulator login or transmits credentials. The badge
+// describes our ability to validate the v1 discovery response, NOT a
+// cryptographic attestation of the viewer or an OGL operator certificate.
+void FSPanelLogin::refreshOglGridBadge()
+{
+    LLTextBox* badge = findChild<LLTextBox>("ogl_grid_badge");
+    if (!badge)
+    {
+        return; // custom skins without the badge still retain login support
+    }
+
+    static U32 next_sequence = 0;
+    const U32 sequence = ++next_sequence;
+    mOglDiscoverySequence = sequence;
+
+    auto* grids = LLGridManager::getInstance();
+    const std::string grid = grids->getGrid();
+    const bool second_life = grids->isInSecondLife();
+
+    badge->setText(second_life ? "Second Life" : "OpenSim Legacy");
+    badge->setColor(LLUIColor(LLColor4(0.70f, 0.74f, 0.80f, 1.0f)));
+    badge->setToolTip("Kein bestaetigtes OGL-Discovery-Protokoll. Normaler Grid-Login bleibt erhalten.");
+    if (grid.empty() || second_life)
+    {
+        return;
+    }
+
+    LLSD info;
+    grids->getGridData(grid, info);
+    if (!info.has(GRID_LOGIN_URI_VALUE) || !info[GRID_LOGIN_URI_VALUE].isArray() ||
+        info[GRID_LOGIN_URI_VALUE].size() < 1 || !info[GRID_LOGIN_URI_VALUE][0].isString())
+    {
+        return;
+    }
+
+    // Derive only a same-origin public metadata path. Do not use URLs
+    // advertised inside the response as destinations for credential requests.
+    const LLURI login_uri(info[GRID_LOGIN_URI_VALUE][0].asString());
+    const std::string scheme = login_uri.scheme();
+    if ((scheme != "http" && scheme != "https") || login_uri.hostName().empty() ||
+        !login_uri.userName().empty() || !login_uri.password().empty())
+    {
+        return;
+    }
+    const bool tls = (scheme == "https");
+    const std::string url = scheme + "://" + login_uri.hostNameAndPort() + "/ogl/v1/grid-info";
+
+    badge->setText("OGL wird geprueft ...");
+    badge->setColor(LLUIColor(LLColor4(0.65f, 0.78f, 0.95f, 1.0f)));
+    badge->setToolTip("Pruefe das oeffentliche JSON-Discovery-Schema; keine Anmeldung.");
+
+    LLCore::HttpOptions::ptr_t opts = std::make_shared<LLCore::HttpOptions>();
+    opts->setTimeout(8);
+    opts->setFollowRedirects(false);
+    opts->setSSLVerifyPeer(true);
+    opts->setSSLVerifyHost(true);
+
+    FSCoreHttpUtil::callbackHttpGetRaw(
+        url,
+        [grid, sequence, tls](const LLSD& response) {
+            FSPanelLogin::onOglGridInfoResponse(grid, sequence, tls, true, response);
+        },
+        [grid, sequence, tls](const LLSD& response) {
+            FSPanelLogin::onOglGridInfoResponse(grid, sequence, tls, false, response);
+        },
+        LLCore::HttpHeaders::ptr_t(), opts);
+}
+
+void FSPanelLogin::onOglGridInfoResponse(const std::string& grid, U32 sequence,
+                                         bool tls, bool succeeded, const LLSD& data)
+{
+    if (!sInstance || sInstance->mOglDiscoverySequence != sequence ||
+        LLGridManager::getInstance()->getGrid() != grid)
+    {
+        return; // panel closed or grid changed before the HTTP reply arrived
+    }
+
+    LLTextBox* badge = sInstance->findChild<LLTextBox>("ogl_grid_badge");
+    if (!badge)
+    {
+        return;
+    }
+
+    badge->setText("OpenSim Legacy");
+    badge->setColor(LLUIColor(LLColor4(0.70f, 0.74f, 0.80f, 1.0f)));
+    badge->setToolTip("Kein gueltiger OGL-v1-Nachweis. Standard-OpenSim-Login bleibt aktiv.");
+    if (!succeeded)
+    {
+        return; // 404/timeouts/SSL errors are normal for legacy grids
+    }
+
+    const LLSD& http = data[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+    const LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(http);
+    if (status.getType() != HTTP_OK)
+    {
+        return;
+    }
+
+    const LLSD::Binary& bytes = data[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS_RAW].asBinary();
+    if (bytes.empty() || bytes.size() > 32768)
+    {
+        return;
+    }
+    const std::string body(bytes.begin(), bytes.end());
+    boost::system::error_code error;
+    const boost::json::value document = boost::json::parse(body, error);
+    if (error || !document.is_object())
+    {
+        return;
+    }
+
+    const boost::json::object& obj = document.as_object();
+    const auto* schema = obj.if_contains("schema");
+    const auto* version = obj.if_contains("protocol_version");
+    const auto* server = obj.if_contains("server");
+    const auto* features = obj.if_contains("features");
+    const auto* endpoints = obj.if_contains("endpoints");
+    if (!schema || !schema->is_string() ||
+        schema->as_string() != "org.opengenesislink.viewer.grid-info.v1" ||
+        !version || !version->is_int64() || version->as_int64() != 1 ||
+        !server || !server->is_object() ||
+        !features || !features->is_object() ||
+        !endpoints || !endpoints->is_object())
+    {
+        return;
+    }
+    const auto* product = server->as_object().if_contains("product");
+    const auto* supported = features->as_object().if_contains("ogl_grid_info_v1");
+    const auto* discovery_path = endpoints->as_object().if_contains("ogl_grid_info");
+    if (!product || !product->is_string() || product->as_string() != "OpenGenesisLINK" ||
+        !supported || !supported->is_bool() || !supported->as_bool() ||
+        !discovery_path || !discovery_path->is_string() ||
+        discovery_path->as_string() != "/ogl/v1/grid-info")
+    {
+        return;
+    }
+
+    if (tls)
+    {
+        badge->setText("OGL verifiziert");
+        badge->setColor(LLUIColor(LLColor4(0.28f, 0.86f, 0.52f, 1.0f)));
+        badge->setToolTip("OGL-Discovery v1 ueber geprueftes HTTPS bestaetigt. Kein kryptographischer Betreiber- oder Clientnachweis.");
+    }
+    else
+    {
+        badge->setText("OGL erkannt (HTTP)");
+        badge->setColor(LLUIColor(LLColor4(1.0f, 0.68f, 0.28f, 1.0f)));
+        badge->setToolTip("OGL-v1-Schema erkannt, aber ohne TLS nicht verifiziert. Zugangsdaten niemals deshalb als sicher ansehen.");
+    }
+}
+
 void FSPanelLogin::updateLoginButtons()
 {
     LLButton* login_btn = getChild<LLButton>("connect_btn");
@@ -1554,6 +1709,7 @@ void FSPanelLogin::updateServerCombo()
                              ADD_TOP);
     server_choice_combo->selectFirstItem();
     update_grid_help();
+    sInstance->refreshOglGridBadge();
 }
 
 // static
