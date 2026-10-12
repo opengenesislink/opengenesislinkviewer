@@ -39,3 +39,12 @@ Keep upstream code attribution and applicable LGPL license, third-party
 credits, modified-source availability obligations and distributable dependency
 notices. Review all music/audio codecs, fonts, trademarked art and proprietary
 SDKs. See [LEGAL.md](LEGAL.md).
+
+## Imported CI workflows
+
+Upstream GitHub Actions workflows (signing, deployment, schedules and SL builds)
+were intentionally removed from the active `.github/workflows/` directory in
+the reviewed import branch. Their contents remain recoverable via the pinned
+upstream Git history. Reactivate a workflow only after inspecting its external
+services, credentials, triggers and OpenSimulator `ReleaseOS` support.
+See [CI_POLICY.md](CI_POLICY.md).

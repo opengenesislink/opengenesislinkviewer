@@ -18,7 +18,18 @@ jobs:
       - uses: actions/checkout@v4
       - name: Validate foundation
         run: python3 scripts/check_scaffold.py
+      - name: Validate imported Firestorm ReleaseOS source (not a native build)
+        run: python3 scripts/check_source_import.py
+      - name: Verify OGL discovery badge source and XUI layouts (static only)
+        run: python3 scripts/check_ogl_grid_badge.py
+      - name: Verify M2 collapsible edge menus (static only)
+        run: python3 scripts/check_ogl_edge_sidebars.py
+      - name: Check Python syntax
+        run: python3 -m py_compile scripts/check_scaffold.py scripts/check_source_import.py scripts/check_ogl_grid_badge.py scripts/check_ogl_edge_sidebars.py
       - name: Check shell syntax
         run: |
           bash -n scripts/import_firestorm.sh
           bash -n scripts/build_linux.sh
+          bash -n scripts/preflight_linux.sh
+          bash -n scripts/check_linux_binary.sh
+          bash -n scripts/run_linux_isolated.sh
