@@ -131,6 +131,39 @@
     <key>Value</key>
     <integer>1</integer>
   </map>
+  <key>OGLSidebarsEnabled</key>
+  <map>
+    <key>Comment</key>
+    <string>Enable OpenGenesisLINK&apos;s optional left and right inworld edge navigation rails.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
+  <key>OGLLeftSidebarExpanded</key>
+  <map>
+    <key>Comment</key>
+    <string>Persist whether the left OpenGenesisLINK edge navigation menu is expanded.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+  <key>OGLRightSidebarExpanded</key>
+  <map>
+    <key>Comment</key>
+    <string>Persist whether the right OpenGenesisLINK edge navigation menu is expanded.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
   <key>AutohideChatBar</key>
   <map>
     <key>Comment</key>
