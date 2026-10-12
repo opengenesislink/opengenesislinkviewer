@@ -2447,8 +2447,8 @@ void oglAddEdgeAction(OglEdgeSidebar& side, LLPanel* panel,
     params.name(name);
     params.label(label);
     params.rect(LLRect(18, 110, 272, 52));
-    params.font_color(LLUIColor(LLColor4(0.76f, 0.89f, 1.0f, 1.0f)));
-    params.font_color_disabled(LLUIColor(LLColor4(0.41f, 0.52f, 0.64f, 1.0f)));
+    params.label_color(LLUIColor(LLColor4(0.76f, 0.89f, 1.0f, 1.0f)));
+    params.label_color_disabled(LLUIColor(LLColor4(0.41f, 0.52f, 0.64f, 1.0f)));
     params.follows.flags(FOLLOWS_LEFT | FOLLOWS_TOP);
     LLButton* button = LLUICtrlFactory::create<LLButton>(params);
     button->setClickedCallback([floater_key](LLUICtrl*, const LLSD&)
@@ -2488,7 +2488,7 @@ void oglBuildEdgeSidebar(OglEdgeSidebar& side, LLView* root,
     toggle_params.name(std::string(name) + "_toggle");
     toggle_params.label(right ? "<" : ">");
     toggle_params.rect(LLRect(4, 384, 38, 350));
-    toggle_params.font_color(LLUIColor(LLColor4(0.39f, 0.76f, 1.0f, 1.0f)));
+    toggle_params.label_color(LLUIColor(LLColor4(0.39f, 0.76f, 1.0f, 1.0f)));
     side.toggle = LLUICtrlFactory::create<LLButton>(toggle_params);
     side.toggle->setToolTip(LLStringExplicit("OpenGenesisLINK Seitenmenue ein- oder ausklappen"));
     side.toggle->setClickedCallback([&side, root](LLUICtrl*, const LLSD&)
