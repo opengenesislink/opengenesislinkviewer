@@ -28,3 +28,4 @@ jobs:
           bash -n scripts/build_linux.sh
           bash -n scripts/preflight_linux.sh
           bash -n scripts/check_linux_binary.sh
+          bash -n scripts/run_linux_isolated.sh
