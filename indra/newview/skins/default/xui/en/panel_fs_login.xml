@@ -216,6 +216,19 @@
       <combo_box.drop_down_button
         font="SansSerifLarge"/>
       </combo_box>
+      <!-- OGL server discovery badge, deliberately separate from the grid name. -->
+      <text
+        follows="left|bottom"
+        font="SansSerifSmall"
+        text_color="0.70 0.74 0.80 1"
+        top="64"
+        left="10"
+        height="15"
+        width="133"
+        name="ogl_grid_badge">
+        OpenSim Legacy
+      </text>
+
     </layout_panel>
     <layout_panel
         auto_resize="false"
