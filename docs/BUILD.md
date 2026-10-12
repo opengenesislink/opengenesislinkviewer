@@ -6,8 +6,13 @@
 GUI with isolated user settings, and an interactive Stadt NexVerse avatar
 login subsequently completed through `STATE_STARTED`, confirmed both by the
 user and the isolated viewer startup state log.
-**This does not qualify as an Ubuntu 22.04 reference release build, Windows
-build, complete in-world regression suite, or secure production login.** The
+**Interactive inworld functionality (developer-confirmed, 2026-10-12):**
+avatar rendering, inventory interaction, teleports, chat and LSL all worked.
+Voice could not be tested because voice is not yet implemented on the
+OpenGenesisLINK server. This is an untested server-dependent capability,
+not a verified client failure. **The current tests do not qualify as an
+Ubuntu 22.04 reference release build, Windows build, automated regression
+suite, or secure production login.** The
 import PR #26 remains a draft; `main` lacks imported source until review.
 
 ## Linux x64 (initial target)
@@ -135,8 +140,10 @@ direct `ninja` subprocess launched by this Firestorm Autobuild configuration.
 
 The local script requires the repository already be checked out at the import
 branch. The optional `check_linux_binary.sh` verifies OpenSim CMake flags, a Linux x86_64 ELF executable, and missing dynamic libraries; it does **not** perform an OpenSimulator grid login. Successful compilation is **not** equivalent to runtime compatibility:
-a launch and login test against an OpenSimulator-compatible test grid is still
-required. Windows native CI remains outstanding under #7.
+a launch and login test against an OpenSimulator-compatible grid was
+completed on the Mint development host; the Ubuntu 22.04 reference build,
+Windows native CI under #7, product isolation, HTTPS grid access and release
+signoff remain outstanding.
 
 ## Local isolated Linux GUI test (no credential transfer)
 
@@ -177,9 +184,11 @@ pre-login smoke, the developer signed into Stadt NexVerse successfully. The
 isolated `Firestorm.log` recorded the transitions `STATE_LOGIN_WAIT` through
 `STATE_LOGIN_PROCESS_RESPONSE`, `STATE_WORLD_INIT`, `STATE_SEED_CAP_GRANTED`,
 `STATE_AGENT_SEND`, `STATE_INVENTORY_SKEL`, `STATE_PRECACHE`, and finally
-`STATE_STARTED`. The viewer remained running. Inventory initialization
-occurred, but item interactions, teleports, LSL behavior and voice sessions
-have not yet been tested. No login credentials or complete authentication
+`STATE_STARTED`. The viewer remained running. The developer subsequently confirmed
+successful avatar rendering, inventory interactions, teleporting, chat and
+LSL inworld (manual tests on 2026-10-12). Voice **cannot currently be
+validated end-to-end** because the OpenGenesisLINK server does not yet
+provide voice; this must be revisited when the backend becomes available. No login credentials or complete authentication
 log lines were copied into this repository. **The HTTP-only grid endpoint
 remains a security concern despite this functional login success.**
 
