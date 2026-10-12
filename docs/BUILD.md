@@ -1,8 +1,12 @@
 # Building OGL Viewer (M1 source import branch)
 
-**Important:** The draft source-import branch contains Firestorm C++ sources,
-but the native OGL build has not been validated. The `main` branch still
-lacks source code until PR #26 is accepted. Commands are test candidates.
+**M1 status (2026-10-12):** A complete Linux Mint 22.3 x86_64 native
+`ReleaseOS` C++ build passed on a dedicated developer worktree (`OPENSIM=ON`,
+`PACKAGE=OFF`). The staged ELF/linkage check passed and the viewer reached
+`STATE_LOGIN_WAIT` in an X11 GUI session, with isolated user settings.
+**This does not qualify as an Ubuntu 22.04 release build or an OpenSimulator
+avatar-login test.** The import PR #26 remains a draft; `main` lacks the
+imported source until review and merge.
 
 ## Linux x64 (initial target)
 
@@ -26,13 +30,16 @@ python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install -r requirements.txt
 export AUTOBUILD_VARIABLES_FILE="$(realpath ../fs-build-variables/variables)"
-autobuild configure -A 64 -c ReleaseOS
-autobuild build -A 64 -c ReleaseOS
+bash scripts/build_linux.sh
+bash scripts/check_linux_binary.sh
 ```
 
-`ReleaseOS` is the upstream configuration for OpenSimulator without
-non-default KDU/FMOD libraries. The exact instructions must be smoke-tested
-against the pinned commit; neither running build nor packaging is yet verified.
+`ReleaseOS` is the upstream configuration used for OpenSimulator without
+non-default KDU/FMOD libraries. **Autobuild's ReleaseOS variant does not itself
+enable OpenSimulator support**; the OGL script explicitly passes
+`-DOPENSIM:BOOL=ON`, `-DVIEWER_CHANNEL:STRING=OpenGenesisLINK` and
+`-DPACKAGE:BOOL=OFF`. Linux Mint 22.3 compilation has been verified;
+Ubuntu 22.04 release reproducibility and installer packaging remain unverified.
 
 ## Windows x64 (initial target)
 
@@ -128,6 +135,40 @@ The local script requires the repository already be checked out at the import
 branch. The optional `check_linux_binary.sh` verifies OpenSim CMake flags, a Linux x86_64 ELF executable, and missing dynamic libraries; it does **not** perform an OpenSimulator grid login. Successful compilation is **not** equivalent to runtime compatibility:
 a launch and login test against an OpenSimulator-compatible test grid is still
 required. Windows native CI remains outstanding under #7.
+
+## Local isolated Linux GUI test (no credential transfer)
+
+After a successful staged build and `bash scripts/check_linux_binary.sh`:
+
+```bash
+bash scripts/run_linux_isolated.sh
+# If the grid is already configured in this *isolated* viewer profile:
+bash scripts/run_linux_isolated.sh --grid hg.stadt-nexverse.de
+```
+
+The script uses a separate `ogl-runtime-test/` directory (or `OGL_TEST_ROOT`,
+which must be an absolute path) for Firestorm application settings, cache,
+plugins and XDG data. The **critical** Linux override is
+`FIRESTORM_X64_USER_DIR`: the imported Firestorm 7.2.4 gets the OS home from
+`getpwuid()`, **not** from `HOME`, so modifying `HOME` alone can read and
+overwrite the existing `~/.firestorm_x64` profile. Do **not** launch the
+staged `firestorm` wrapper for isolation tests: upstream's wrapper also
+registers system URL protocol handlers at startup. Use the OGL test script,
+which invokes the staged executable directly with bundled library paths.
+
+The first developer workstation smoke test identified the home-directory
+behavior and, before isolation was corrected, briefly wrote user settings and
+purged cache entries in the host Firestorm profile. No automatic restoration
+of those host files was performed. Subsequent runs confirmed writes only to
+the isolated `ogl-runtime-test/firestorm-x64-appdata` tree and an unchanged
+host settings-file timestamp. Never copy a real account's password, token or
+credential into the isolated profile; only public grid metadata may be used.
+
+The successful GUI startup reached `STATE_BROWSER_INIT --> STATE_LOGIN_SHOW
+--> STATE_LOGIN_WAIT`, with the native OpenGenesisLINK title shown and no
+automatic login. This validates application launch and the login screen,
+**not** authenticating or entering a test region; that requires a
+credentialed, manually supervised OpenSimulator smoke test.
 
 ## Build artifact traceability
 
