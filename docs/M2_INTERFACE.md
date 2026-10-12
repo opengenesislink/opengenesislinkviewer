@@ -69,8 +69,14 @@ subsequent M2 iterations, not features claimed complete here.
 
 ## Product identity
 
-M2 is not complete until the default application data, executable and
-packaging identities, icons, desktop URL handlers, Windows installer
-and per-account paths are independent from original Firestorm. The
-isolated Linux test launcher currently uses a Firestorm upstream override;
-this must be removed as the final product data directory is adopted.
+M2 switches the viewer's filesystem application identity in
+`indra/newview/llappviewer.cpp` from Firestorm to `OpenGenesisLINK_x64`
+(or `OpenGenesisLINK` on 32-bit builds). Linux default user data is now
+`~/.opengenesislink_x64`, and the isolated test launcher uses the matching
+`OPENGENESISLINK_X64_USER_DIR` override. It does not migrate data or read the
+original `~/.firestorm_x64` user profile. The exact changed binary/runtime
+startup must pass a native smoke test before treating this as verified.
+
+M2 is **not complete** until executable/install package names, icons, desktop
+URL handlers, Windows installer and attribution have independent identities.
+No updater or protocol-handler registration changes were made in this phase.
