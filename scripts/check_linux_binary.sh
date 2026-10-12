@@ -14,20 +14,24 @@ grep -qx 'VIEWER_CHANNEL:STRING=OpenGenesisLINK' "$cache" || fail 'unexpected Vi
 command -v readelf >/dev/null || fail 'readelf not found (install binutils)'
 command -v ldd >/dev/null || fail 'ldd not found'
 
-binary="$build/newview/firestorm-bin"
-if [[ ! -f "$binary" ]]; then
-  binary=$(find "$build/newview" -maxdepth 3 -type f -name 'firestorm-bin' -print -quit 2>/dev/null || true)
-fi
-[[ -n "$binary" && -f "$binary" ]] || fail 'no compiled firestorm-bin executable; native build incomplete'
+# The staged application bundles WebRTC, OpenAL utilities and other libraries.
+# Check its real launcher target with the same library directory used by the
+# shipped launcher, not the un-staged raw linker output.
+stage="$build/newview/packaged"
+binary="$stage/bin/do-not-directly-run-firestorm-bin"
+[[ -f "$binary" ]] || fail "staged viewer executable missing: $binary"
+[[ -d "$stage/lib" ]] || fail "staged runtime libraries missing: $stage/lib"
 [[ -x "$binary" ]] || fail "not executable: $binary"
 readelf -h "$binary" | grep -q 'ELF64' || fail 'binary is not ELF64'
 readelf -h "$binary" | grep -Eq 'Machine:.*(X86-64|Advanced Micro Devices X86-64)' || fail 'binary is not x86_64'
 
-echo "OpenSim flags/channel OK; ELF x86_64 executable: $binary"
-echo "Dynamic library dependencies:"
-deps=$(ldd "$binary" 2>&1) || { printf '%s\n' "$deps"; fail 'ldd inspection failed'; }
+echo "OpenSim flags/channel OK; staged ELF x86_64 executable: $binary"
+echo "Staged dynamic library dependencies:"
+deps=$(LD_LIBRARY_PATH="$stage/lib:${LD_LIBRARY_PATH:-}" ldd "$binary" 2>&1) || {
+  printf '%s\n' "$deps"; fail 'ldd inspection failed'
+}
 printf '%s\n' "$deps"
 if printf '%s\n' "$deps" | grep -q 'not found'; then
-  fail 'missing runtime shared library; inspect ldd output'
+  fail 'missing runtime shared library; inspect staged ldd output'
 fi
 echo 'OGL binary smoke check OK (ELF/linkage only; OpenSimulator login remains untested).'
