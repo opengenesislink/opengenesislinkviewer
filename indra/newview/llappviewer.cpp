@@ -794,10 +794,13 @@ LLAppViewer::LLAppViewer()
 
     // <FS:ND> Init our custom directories, not from SecondLife
     // gDirUtilp->initAppDirs("SecondLife");
+// OpenGenesisLINK M2: never reuse Firestorm's local user profile, credential
+    // store, cache, logs or per-account viewer settings. Firestorm and other
+    // installed viewers must remain independent; no implicit profile migration.
 #if ADDRESS_SIZE == 64
-    gDirUtilp->initAppDirs(APP_NAME + "_x64");
+    gDirUtilp->initAppDirs("OpenGenesisLINK_x64");
 #else
-    gDirUtilp->initAppDirs(APP_NAME);
+    gDirUtilp->initAppDirs("OpenGenesisLINK");
 #endif
     // </FS:ND>
 
